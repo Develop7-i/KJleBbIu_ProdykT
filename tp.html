@@ -12,6 +12,7 @@
 <!-- model-viewer (3D-модели) -->
 <script type="module"
         src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+<script src="./js/recommendation.js"></script>
 
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -330,15 +331,67 @@ const PONDS = [
 
 /* ============================================================
    ПРОГНОЗ КЛЁВА
-   Точка интеграции для коллеги, который делает логику.
-   Сейчас — заглушка (случайное значение, стабильно для одной рыбы).
-   Позже здесь будет формула с погодой, давлением, сезоном и т.д.
-   Функция обязана возвращать целое число от 1 до 5.
+   Демонстрационная эвристика FishCast.
+   Реальные погодные данные ещё не подключены.
    ============================================================ */
+const DEMO_WEATHER = {
+  temperature: 16,
+  pressure: 1005,
+  windSpeed: 3
+};
+
+function getCurrentSeason() {
+  const month = new Date().getMonth();
+  if (month === 11 || month <= 1) return "winter";
+  if (month <= 4) return "spring";
+  if (month <= 7) return "summer";
+  return "autumn";
+}
+
+function indexToForecastScale(index) {
+  return Math.max(1, Math.min(5, Math.ceil(index / 20)));
+}
+
 function computeForecast(pond, fish) {
-  // Простая стабильная заглушка: псевдослучайное значение 1–5
-  const seed = [...pond.id, ...fish.name].reduce((s, ch) => s + ch.charCodeAt(0), 0);
-  return 1 + (seed % 5);
+  if (!window.FishCastRecommendation
+      || typeof window.FishCastRecommendation.calculateFishingIndex !== "function") {
+    return {
+      score: 0,
+      index: null,
+      message: "Модуль расчёта индекса не загружен"
+    };
+  }
+
+  try {
+    const index = window.FishCastRecommendation.calculateFishingIndex({
+      temperature: DEMO_WEATHER.temperature,
+      pressure: DEMO_WEATHER.pressure,
+      windSpeed: DEMO_WEATHER.windSpeed,
+      season: getCurrentSeason(),
+      fishSpecies: fish.name
+    });
+
+    return {
+      score: indexToForecastScale(index),
+      index: index,
+      message: ""
+    };
+  } catch (error) {
+    if (error instanceof RangeError
+        && String(error.message).startsWith("Unknown fish species")) {
+      return {
+        score: 0,
+        index: null,
+        message: "Нет профиля расчёта для вида: " + fish.name
+      };
+    }
+
+    return {
+      score: 0,
+      index: null,
+      message: "Не удалось рассчитать индекс благоприятности"
+    };
+  }
 }
 
 /* ============================================================
@@ -424,11 +477,15 @@ function showPond(pond) {
   pondName.textContent = pond.name + " (" + pond.type + ")";
 
   fishList.innerHTML = pond.fish.map(function (fish) {
-    const score = computeForecast(pond, fish);
+    const forecast = computeForecast(pond, fish);
+    const score = forecast.score;
     const scale = Array.from({ length: 5 }, (_, i) =>
       `<div class="cell${i < score ? " on-" + score : ""}"></div>`
 
     ).join("");
+    const forecastText = forecast.index === null
+      ? forecast.message
+      : `Индекс благоприятности: ${forecast.index} из 100`;
 
     return `
       <div class="fish-card">
@@ -438,7 +495,7 @@ function showPond(pond) {
         <div class="fish-info">
           <div class="fish-name">${fish.name}</div>
           <div class="forecast-scale">${scale}</div>
-          <div class="forecast-text">Прогноз клёва: ${score} из 5</div>
+          <div class="forecast-text">${forecastText}</div>
 
         </div>
       </div>`;
