@@ -399,7 +399,8 @@ function initMap() {
   if (map) return; // карта уже создана
 
   map = L.map("map").setView([54.75, 87.2], 7); // центр Кузбасса
-
+  map.attributionControl.setPrefix(false);
+  
   L.tileLayer("https://a.tile.opentopomap.org/{z}/{x}/{y}.png", {
     attribution: "© OpenStreetMap, © OpenTopoMap",
     maxZoom: 17
