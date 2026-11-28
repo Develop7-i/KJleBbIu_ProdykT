@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>КЛЁВый Прогноз</title>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet">
+
+<!-- Leaflet (карта) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- model-viewer (3D-модели) -->
+<script type="module"
+        src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <header>
+    <div class="cloud"></div>
+    <h1>КЛЁВый Прогноз</h1>
+    <div class="cloud"></div>
+  </header>
+
+  <!-- Главный экран -->
+  <section class="screen" id="screen-main">
+    <div class="label">Выберите регион:</div>
+
+    <form class="search-box" id="search-form">
+      <input type="text" id="region-input" placeholder="Например: Кемеровская область" autocomplete="off">
+      <button type="submit" id="search-btn" aria-label="Найти">
+        <svg viewBox="0 0 24 24">
+          <circle cx="10.5" cy="10.5" r="6.5"/>
+          <line x1="15.5" y1="15.5" x2="21" y2="21"/>
+        </svg>
+      </button>
+    </form>
+
+    <div id="result"></div>
+  </section>
+
+  <!-- Экран региона -->
+  <section class="screen hidden" id="screen-region">
+    <button id="back-btn">← Назад</button>
+
+    <div class="map-layout">
+      <div id="map"></div>
+
+      <aside id="fish-panel" class="hidden">
+        <h2 id="pond-name"></h2>
+        <div id="fish-list"></div>
+      </aside>
+
+      <aside id="panel-placeholder-hint" class="panel-placeholder">
+        Нажмите на метку водоёма,<br>чтобы увидеть рыб и прогноз клёва
+      </aside>
+    </div>
+
+  </section>
+
+  <div class="gear" title="Настройки">
+    <svg viewBox="0 0 24 24">
+      <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.5.5 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"/>
+    </svg>
+  </div>
+
+  <!-- Скрипты: порядок важен! -->
+  <script src="js/data.js"></script>
+  <script src="js/recommendation.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
